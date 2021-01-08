@@ -9,7 +9,18 @@ Airflow handles the ingestion of the data. Postgres/MySQL is be the database for
 Dags
 
 ### Spotify
+- API built to communicate with the spotify API
+- Authorization flow with OAuth2
 
+To use localy
+
+1) create a [spotify developer account](https://developer.spotify.com/dashboard/applications) and create and app. 
+2) Get the CLIENT_ID and CLIENT_SECRET from the app you just created and enter them as enviroment varibales:
+
+```bash
+export SPOTIFY_AIRFLOW_CLIENT_ID=<CLIENT_ID>
+export SPOTIFY_AIRFLOW_CLIENT_SECRET=<CLIENT_SECRET>
+```
 
 ### Tweet Analyzer
 TODO: https://github.com/jamesang17/airflow-app

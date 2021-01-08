@@ -44,6 +44,8 @@ def run_spotify_etl():
     database_location = os.getenv('AIRFLOW_VAR_SPOTIFY_DATABASE_LOCATION')
     token = os.getenv('AIRFLOW_VAR_SPOTIFY_TOKEN')
 
+    print(f'db: {database_location}')
+    print(f'token: {token}')
       # Extract part of the ETL process
  
     headers = {
@@ -66,6 +68,8 @@ def run_spotify_etl():
     artist_names = []
     played_at_list = []
     timestamps = []
+
+    print(f'data: {data}')
 
     # Extracting only the relevant bits of data from the json object      
     for song in data["items"]:

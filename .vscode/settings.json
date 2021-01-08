@@ -1,0 +1,4 @@
+{
+    "python.pythonPath": "/home/dave/miniconda3/envs/airflow/bin/python",
+    "python.formatting.provider": "autopep8"
+}
