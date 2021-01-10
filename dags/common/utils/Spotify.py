@@ -3,7 +3,7 @@ import requests
 import base64
 from urllib.parse import urlencode
 
-API_URL = 'https://api.spotify.com/v1'
+API_URL = 'https://api.spotify.com'
 
 
 class SpotifyAPI(object):
@@ -89,22 +89,47 @@ class SpotifyAPI(object):
             return self.get_access_token()
         return self.access_token
 
-    def search(self, query, search_type='artist'):
+    def get_resource_header(self):
         token = self.get_access_token()
-        endpoint = f"{API_URL}/search"
         headers = {
             "Authorization": f"Bearer {token}"
         }
+        return headers
 
-        data = {
-            "q": query,
-            "type": search_type
-        }
-        lookup_url = f"{endpoint}?{urlencode(data)}"
+    def get_resource(self, lookup_id, resource_type, version='v1'):
+        endpoint = f"{API_URL}/{version}/{resource_type}/{lookup_id}"
+        headers = self.get_resource_header()
+        r = requests.get(endpoint, headers=headers)
+        if r.status_code not in range(200, 299):
+            return {}
+        return r.json()
+
+    def get_album(self, _id):
+        return self.get_resource(lookup_id=_id, resource_type='albums')
+
+    def get_artist(self, _id):
+        return self.get_resource(lookup_id=_id, resource_type='artists')
+
+    def base_search(self, query_params, version='v1'):
+        token = self.get_access_token()
+        endpoint = f"{API_URL}/{version}/search"
+        headers = self.get_resource_header()
+        lookup_url = f"{endpoint}?{query_params}"
         r = requests.get(lookup_url, headers=headers)
         if r.status_code not in range(200, 299):
             return {}
         return r.json()
+
+    def search(self, query=None, search_type='artist'):
+        if query is None:
+            raise Exception("A query is required")
+        if isinstance(query, dict):
+            query = " ".join([f"{k}:{v}" for k, v in query.items()])
+        query_params = urlencode({
+            "q": query,
+            "type": search_type.lower()
+        })
+        return self.base_search(query_params)
 
 
 if __name__ == "__main__":
@@ -112,5 +137,7 @@ if __name__ == "__main__":
     client_id = os.getenv('SPOTIFY_AIRFLOW_CLIENT_ID')
     client_secret = os.getenv('SPOTIFY_AIRFLOW_CLIENT_SECRET')
     spotify = SpotifyAPI(client_id, client_secret)
-    print(spotify.perform_auth())
+    # print(spotify.perform_auth())
     print(spotify.search('monkey'))
+    # print(spotify.get_artist('7Ln80lUS6He07XvHI8qqHH'))
+    # print(spotify.get_album('7Heaa0B4KOxdWhSICTR2wE'))

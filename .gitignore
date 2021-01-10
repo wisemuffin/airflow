@@ -3,3 +3,4 @@
 airflow_settings.yaml
 .cache
 .ipynb_checkpoints
+.vscode
