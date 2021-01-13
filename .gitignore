@@ -5,3 +5,6 @@ airflow_settings.yaml
 .ipynb_checkpoints
 .vscode
 .sqlite
+.log
+my_played_tracks.sqlite
+__pycache__

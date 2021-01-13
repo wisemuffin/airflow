@@ -1,2 +1,6 @@
 project:
   name: airflow-dg
+local:
+  enabled: true
+  houston: http://localhost:8871/v1
+  orbit: http://localhost:5000

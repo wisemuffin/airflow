@@ -1,5 +1,9 @@
 {
     "python.pythonPath": "/home/dave/miniconda3/envs/airflow/bin/python",
+    "python.autoComplete.extraPaths": [
+        "~/data-engineering/airflow-dg/plugins/operators",
+        "~/data-engineering/airflow-dg/plugins/hooks"
+    ],
     "python.formatting.provider": "autopep8",
     "jupyter.jupyterServerType": "local"
 }

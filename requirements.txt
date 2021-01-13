@@ -1,1 +1,8 @@
 spotipy==2.16.1
+apache-airflow-providers-amazon==1.0.0
+apache-airflow-providers-postgres==1.0.0
+tweepy==3.10.0
+pytest==6.2.1
+pytest-helpers-namespace==2019.1.8
+pytest-mock==3.5.1
+pytest-docker-tools==1.0.0
