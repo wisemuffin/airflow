@@ -1,6 +1,10 @@
-.git
+.git*
 .env
 airflow_settings.yaml
 .cache
 .ipynb_checkpoints
 .vscode
+.sqlite
+.log
+my_played_tracks.sqlite
+__pycache__

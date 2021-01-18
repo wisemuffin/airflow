@@ -1,12 +1,14 @@
 import os
-import sqlalchemy
-import pandas as pd 
-from sqlalchemy.orm import sessionmaker
 import requests
 import json
-from datetime import datetime
 import datetime
+
+import sqlalchemy
+import pandas as pd
+from sqlalchemy.orm import sessionmaker
 import sqlite3
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
 
 
 # Generate your token here:  https://developer.spotify.com/console/get-recently-played/
@@ -16,7 +18,7 @@ def check_if_valid_data(df: pd.DataFrame) -> bool:
     # Check if dataframe is empty
     if df.empty:
         print("No songs downloaded. Finishing execution")
-        return False 
+        return False
 
     # Primary Key Check
     if pd.Series(df['played_at']).is_unique:
@@ -42,27 +44,19 @@ def check_if_valid_data(df: pd.DataFrame) -> bool:
 
 def run_spotify_etl():
     database_location = os.getenv('AIRFLOW_VAR_SPOTIFY_DATABASE_LOCATION')
-    token = os.getenv('AIRFLOW_VAR_SPOTIFY_TOKEN')
 
-    print(f'db: {database_location}')
-    print(f'token: {token}')
-      # Extract part of the ETL process
- 
-    headers = {
-        "Accept" : "application/json",
-        "Content-Type" : "application/json",
-        "Authorization" : "Bearer {token}".format(token=token)
-    }
-    
-    # Convert time to Unix timestamp in miliseconds      
+    # Convert time to Unix timestamp in miliseconds
     today = datetime.datetime.now()
-    yesterday = today - datetime.timedelta(days=1)
+    # TODO hadnt listened for a few days
+    yesterday = today - datetime.timedelta(days=4)
     yesterday_unix_timestamp = int(yesterday.timestamp()) * 1000
 
-    # Download all songs you've listened to "after yesterday", which means in the last 24 hours      
-    r = requests.get("https://api.spotify.com/v1/me/player/recently-played?after={time}".format(time=yesterday_unix_timestamp), headers = headers)
-
-    data = r.json()
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.getenv('SPOTIFY_AIRFLOW_CLIENT_ID'),
+                                                   client_secret=os.getenv(
+                                                       'SPOTIFY_AIRFLOW_CLIENT_SECRET'),
+                                                   redirect_uri="http://localhost:8087",
+                                                   scope="user-read-recently-played"))
+    data = sp.current_user_recently_played(after=yesterday_unix_timestamp)
 
     song_names = []
     artist_names = []
@@ -71,23 +65,24 @@ def run_spotify_etl():
 
     print(f'data: {data}')
 
-    # Extracting only the relevant bits of data from the json object      
+    # Extracting only the relevant bits of data from the json object
     for song in data["items"]:
         song_names.append(song["track"]["name"])
         artist_names.append(song["track"]["album"]["artists"][0]["name"])
         played_at_list.append(song["played_at"])
         timestamps.append(song["played_at"][0:10])
-        
-    # Prepare a dictionary in order to turn it into a pandas dataframe below       
+
+    # Prepare a dictionary in order to turn it into a pandas dataframe below
     song_dict = {
-        "song_name" : song_names,
+        "song_name": song_names,
         "artist_name": artist_names,
-        "played_at" : played_at_list,
-        "timestamp" : timestamps
+        "played_at": played_at_list,
+        "timestamp": timestamps
     }
 
-    song_df = pd.DataFrame(song_dict, columns = ["song_name", "artist_name", "played_at", "timestamp"])
-    
+    song_df = pd.DataFrame(song_dict, columns=[
+                           "song_name", "artist_name", "played_at", "timestamp"])
+
     # Validate
     if check_if_valid_data(song_df):
         print("Data valid, proceed to Load stage")
@@ -95,8 +90,6 @@ def run_spotify_etl():
     # Load
 
     engine = sqlalchemy.create_engine(database_location)
-    conn = sqlite3.connect('my_played_tracks.sqlite')
-    cursor = conn.cursor()
 
     sql_query = """
     CREATE TABLE IF NOT EXISTS my_played_tracks(
@@ -108,13 +101,16 @@ def run_spotify_etl():
     )
     """
 
-    cursor.execute(sql_query)
-    print("Opened database successfully")
+    with engine.connect() as con:
+        rs = con.execute(sql_query)
 
     try:
-        song_df.to_sql("my_played_tracks", engine, index=False, if_exists='append')
+        song_df.to_sql("my_played_tracks", engine,
+                       index=False, if_exists='append')
     except:
         print("Data already exists in the database")
 
-    conn.close()
-    print("Close database successfully")
+
+if __name__ == "__main__":
+    os.environ['AIRFLOW_VAR_SPOTIFY_DATABASE_LOCATION'] = "sqlite:///my_played_tracks.sqlite"
+    run_spotify_etl()

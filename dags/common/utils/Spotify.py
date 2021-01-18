@@ -131,6 +131,18 @@ class SpotifyAPI(object):
         })
         return self.base_search(query_params)
 
+    def recently_played(self, after, version='v1'):
+        """
+        TODO Insufficient client scope - need to create a local server and get scopes.
+        See spotify spotipy.oauth2._get_auth_response_local_server
+        """
+        endpoint = f"{API_URL}/{version}/me/player/recently-played?after={after}"
+        headers = self.get_resource_header()
+        r = requests.get(endpoint, headers=headers)
+        if r.status_code not in range(200, 299):
+            return {}
+        return r.json()
+
 
 if __name__ == "__main__":
     import os
@@ -138,6 +150,11 @@ if __name__ == "__main__":
     client_secret = os.getenv('SPOTIFY_AIRFLOW_CLIENT_SECRET')
     spotify = SpotifyAPI(client_id, client_secret)
     # print(spotify.perform_auth())
-    print(spotify.search('monkey'))
+    # print(spotify.search('monkey'))
     # print(spotify.get_artist('7Ln80lUS6He07XvHI8qqHH'))
-    # print(spotify.get_album('7Heaa0B4KOxdWhSICTR2wE'))
+    print(spotify.get_album('7Heaa0B4KOxdWhSICTR2wE'))
+
+    # today = datetime.datetime.now()
+    # yesterday = today - datetime.timedelta(days=3)
+    # yesterday_unix_timestamp = int(yesterday.timestamp()) * 1000
+    # print(spotify.recently_played(yesterday_unix_timestamp))

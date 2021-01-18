@@ -9,10 +9,15 @@ Airflow handles the ingestion of the data. Postgres/MySQL is be the database for
 Dags
 
 ### Spotify
-- API built to communicate with the spotify API
-- Authorization flow with OAuth2
+Query the spotify API for your recently played tracks, then persist that data into a sqlite database. Breakdown:
 
-To use localy
+- python client API built to communicate with the spotify API
+- Authorization flow with OAuth2
+- Calls the spotify API to get your recently played tracks
+- Stages your recently played tracks in a local sqlite database.
+- TODO - Loads data into S3
+
+Prerequisites:
 
 1) create a [spotify developer account](https://developer.spotify.com/dashboard/applications) and create and app. 
 2) Get the CLIENT_ID and CLIENT_SECRET from the app you just created and enter them as enviroment varibales:
@@ -21,6 +26,10 @@ To use localy
 export SPOTIFY_AIRFLOW_CLIENT_ID=<CLIENT_ID>
 export SPOTIFY_AIRFLOW_CLIENT_SECRET=<CLIENT_SECRET>
 ```
+
+3) Give the app access to your spotify account and the required scopes. This DAG gets the current users [Recently Played Tracks](https://developer.spotify.com/console/get-recently-played/?limit=&after=1610224315000&before=). This requires running the dag.spotify.python.spotify_etl localy, this will redirect you to a spotify authorisation page for you to grant access.
+
+4) you can then run the DAG.
 
 ### Tweet Analyzer
 TODO: https://github.com/jamesang17/airflow-app
