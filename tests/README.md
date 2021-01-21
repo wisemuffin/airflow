@@ -6,6 +6,10 @@
 
 ## local testing
 
+```bash
+PYTHONPATH=. pytest
+```
+
 ### testin scripts
 - use breakpoints on scripts, dont run the dag.
 
@@ -19,6 +23,7 @@ airflow dags test [dag_id] [execution_date]
 e.g.
 ```bash
 airflow dags test bashenv 2020-01-12
+```
 
 ## Unit tests
 

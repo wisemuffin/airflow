@@ -51,11 +51,21 @@ def run_spotify_etl():
     yesterday = today - datetime.timedelta(days=4)
     yesterday_unix_timestamp = int(yesterday.timestamp()) * 1000
 
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.getenv('SPOTIFY_AIRFLOW_CLIENT_ID'),
-                                                   client_secret=os.getenv(
-                                                       'SPOTIFY_AIRFLOW_CLIENT_SECRET'),
-                                                   redirect_uri="http://localhost:8087",
-                                                   scope="user-read-recently-played"))
+    client_id = os.getenv('SPOTIFY_AIRFLOW_CLIENT_ID')
+    client_secret = os.getenv('SPOTIFY_AIRFLOW_CLIENT_SECRET')
+    redirect_uri = "http://localhost:8087"
+    scope = "user-read-recently-played"
+
+    print('spotipy - requesting token')
+    print(f'client_id = {client_id}')
+    print(f'client_secret = {client_secret}')
+    print(f'redirect_uri = {redirect_uri}')
+    print(f'scope = {scope}')
+
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
+                                                   client_secret=client_secret,
+                                                   redirect_uri=redirect_uri,
+                                                   scope=scope))
     data = sp.current_user_recently_played(after=yesterday_unix_timestamp)
 
     song_names = []
@@ -81,7 +91,7 @@ def run_spotify_etl():
     }
 
     song_df = pd.DataFrame(song_dict, columns=[
-                           "song_name", "artist_name", "played_at", "timestamp"])
+        "song_name", "artist_name", "played_at", "timestamp"])
 
     # Validate
     if check_if_valid_data(song_df):

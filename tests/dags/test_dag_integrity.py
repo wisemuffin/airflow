@@ -5,8 +5,9 @@ from os import path
 import pytest
 from airflow import models as airflow_models
 
+
 DAG_PATHS = glob.glob(path.join(path.dirname(
-    __file__), "..", "..", "dags", "*.py"))
+    __file__), "..", "..", "dags", "**/*.py"))
 
 
 @pytest.mark.parametrize("dag_path", DAG_PATHS)
