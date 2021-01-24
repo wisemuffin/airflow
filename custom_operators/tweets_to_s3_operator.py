@@ -1,7 +1,7 @@
 from airflow.utils.decorators import apply_defaults
 from airflow.models import BaseOperator
 from airflow.hooks.S3_hook import S3Hook
-from hooks.twitter_hook import TwitterHook
+from custom_hooks.twitter_hook import TwitterHook
 from tempfile import NamedTemporaryFile
 from tweepy import TweepError
 from tweepy import parsers
@@ -38,7 +38,7 @@ class TweetsToS3Operator(BaseOperator):
                  s3_key,
                  topic='',
                  twitter_script=None,
-                 s3_conn_id='default',
+                 s3_conn_id='aws_default',
                  max_tweets=100,
                  *args, **kwargs):
 

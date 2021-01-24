@@ -2,7 +2,7 @@ from datetime import timedelta
 from airflow import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.python_operator import PythonOperator
-from operators.tweets_to_s3_operator import TweetsToS3Operator
+from custom_operators.tweets_to_s3_operator import TweetsToS3Operator
 from airflow.operators.s3_file_transform_operator import S3FileTransformOperator
 # from airflow.operators.aws_plugin import S3ToDynamoDBOperator
 # from airflow.contrib.operators.s3_delete_objects_operator import S3DeleteObjectsOperator
