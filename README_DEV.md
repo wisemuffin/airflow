@@ -19,13 +19,16 @@ astro airflow start
 ## adding connections
 
 astronomer cli - not working - https://www.astronomer.io/docs/cloud/stable/develop/customize-image
-instead exec into container and add via /utils/connections.py
+instead exec into container and add via /utils/connections.py or just add via UI:
+aws_default
 
 
 ## debug when in the the astro container
 *doesnt work in local if you dont have a localy running airflow scheduler.
 
 first [remote-containers: Attach to running container](https://www.youtube.com/watch?v=qCCj7qy72Bg) into the running scheduler.
+
+/usr/local/airflow
 
 launch.json run airflow dag test
 

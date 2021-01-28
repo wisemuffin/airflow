@@ -132,7 +132,7 @@ class TweetsToS3Operator(BaseOperator):
             # Flush the temp file and upload temp file to S3
             tmp.flush()
 
-            s3 = S3Hook(self.s3_conn_id)
+            s3 = S3Hook(self.s3_conn_id, region_name='ap-southeast-2')
 
             s3.load_file(
                 filename=tmp.name,
